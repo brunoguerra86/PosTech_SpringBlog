@@ -11,6 +11,7 @@ public class AutorController {
 
     @Autowired
     private AutorService autorService;
+
     @PostMapping
     public Autor criar(@RequestBody Autor autor){
         return this.autorService.criar(autor);
