@@ -1,6 +1,8 @@
 package br.com.fiap.PosTech_SpringBlog.service;
 
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,4 +20,5 @@ public interface ArtigoService {
     public List<Artigo> findByStatusAndDataGreaterThan(Integer status, LocalDateTime data);
     public List<Artigo> obterArtigoPorDataHora(LocalDateTime de, LocalDateTime ate);
     public List<Artigo> encontrarArtigosComplexos(Integer status, LocalDateTime data, String titulo);
+    Page<Artigo> obterArtigosPaginados(Pageable pageable);
 }

@@ -3,6 +3,9 @@ package br.com.fiap.PosTech_SpringBlog.controller;
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -55,11 +58,17 @@ public class ArtigoController {
         return this.artigoService.obterArtigoPorDataHora(de, ate);
     }
 
-    @GetMapping("/artigo-complexo")
+    @GetMapping("/artigos-complexo")
     public List<Artigo> encontrarArtigosComplexos(@RequestParam("status") Integer status,
                                                   @RequestParam("data") LocalDateTime data,
                                                   @RequestParam("titulo") String titulo) {
         return this.artigoService.encontrarArtigosComplexos(status, data, titulo);
+    }
+
+    @GetMapping("/artigos-paginado")
+    public ResponseEntity<Page<Artigo>> obterArtigosPaginados(Pageable pageable){
+        Page<Artigo> artigos = this.artigoService.obterArtigosPaginados(pageable);
+        return ResponseEntity.ok(artigos);
     }
 
     @PutMapping
