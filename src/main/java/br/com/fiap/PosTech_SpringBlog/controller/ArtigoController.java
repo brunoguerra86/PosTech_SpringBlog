@@ -39,6 +39,29 @@ public class ArtigoController {
         return this.artigoService.findByDataAndStatus(data, status);
     }
 
+    @GetMapping("/status-maiordata")
+    public List<Artigo> findByStatusAndDataGreaterThan(
+            @RequestParam("status") Integer status,
+            @RequestParam("data") LocalDateTime data)
+    {
+        return this.artigoService.findByStatusAndDataGreaterThan(status, data);
+    }
+
+    @GetMapping("/periodo")
+    public List<Artigo> obterArtigoPorDataHora(
+            @RequestParam("de") LocalDateTime de,
+            @RequestParam("ate") LocalDateTime ate)
+    {
+        return this.artigoService.obterArtigoPorDataHora(de, ate);
+    }
+
+    @GetMapping("/artigo-complexo")
+    public List<Artigo> encontrarArtigosComplexos(@RequestParam("status") Integer status,
+                                                  @RequestParam("data") LocalDateTime data,
+                                                  @RequestParam("titulo") String titulo) {
+        return this.artigoService.encontrarArtigosComplexos(status, data, titulo);
+    }
+
     @PutMapping
     public void atualizar(@RequestBody Artigo artigo){
         this.artigoService.atualizar(artigo);
@@ -58,4 +81,5 @@ public class ArtigoController {
     public void deleteArtigoById(@RequestParam("Id") String id){
         this.artigoService.deleteArtigoById(id);
     }
+
 }
