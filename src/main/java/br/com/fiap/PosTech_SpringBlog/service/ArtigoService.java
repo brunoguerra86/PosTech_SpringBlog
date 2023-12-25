@@ -22,4 +22,5 @@ public interface ArtigoService {
     public List<Artigo> encontrarArtigosComplexos(Integer status, LocalDateTime data, String titulo);
     Page<Artigo> obterArtigosPaginados(Pageable pageable);
     public List<Artigo> findByStatusOrderByTituloAsc(Integer status);
+    public List<Artigo> obterArtigoPorStatusComOrdenacao(Integer status);
 }

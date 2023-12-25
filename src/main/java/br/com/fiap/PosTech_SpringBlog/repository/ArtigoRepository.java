@@ -21,4 +21,6 @@ public interface ArtigoRepository extends MongoRepository<Artigo, String> {
     Page<Artigo> findAll(Pageable pageable); // obterArtigosPaginados
 
     public List<Artigo> findByStatusOrderByTituloAsc(Integer status);
+    @Query(value = "{ 'status' :  { $eq: ?0} }", sort = "{ 'titulo' : 1 }" )
+    public List<Artigo> obterArtigoPorStatusComOrdenacao(Integer status);
 }
