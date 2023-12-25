@@ -19,4 +19,6 @@ public interface ArtigoRepository extends MongoRepository<Artigo, String> {
     public List<Artigo> obterArtigoPorDataHora(LocalDateTime de, LocalDateTime ate);
 
     Page<Artigo> findAll(Pageable pageable); // obterArtigosPaginados
+
+    public List<Artigo> findByStatusOrderByTituloAsc(Integer status);
 }

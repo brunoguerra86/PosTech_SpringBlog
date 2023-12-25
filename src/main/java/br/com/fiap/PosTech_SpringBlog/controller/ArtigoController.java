@@ -71,6 +71,11 @@ public class ArtigoController {
         return ResponseEntity.ok(artigos);
     }
 
+    @GetMapping("/status-ordenado")
+    public List<Artigo> findByStatusOrderByTituloAsc(@RequestParam("status") Integer status){
+        return this.artigoService.findByStatusOrderByTituloAsc(status);
+    }
+
     @PutMapping
     public void atualizar(@RequestBody Artigo artigo){
         this.artigoService.atualizar(artigo);
