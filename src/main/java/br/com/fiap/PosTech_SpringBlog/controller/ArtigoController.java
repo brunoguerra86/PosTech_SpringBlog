@@ -1,6 +1,7 @@
 package br.com.fiap.PosTech_SpringBlog.controller;
 
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
+import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -84,6 +85,11 @@ public class ArtigoController {
     @GetMapping("/buscatermo")
     public List<Artigo> findByTexto(@RequestParam("termo") String termo){
         return this.artigoService.findByTexto(termo);
+    }
+
+    @GetMapping("/contarartigos")
+    public List<ArtigoStatusCount> contarArtigosPorStatus(){
+        return this.artigoService.contarArtigosPorStatus();
     }
 
     @PutMapping

@@ -1,6 +1,7 @@
 package br.com.fiap.PosTech_SpringBlog.service.impl;
 
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
+import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
 import br.com.fiap.PosTech_SpringBlog.model.Autor;
 import br.com.fiap.PosTech_SpringBlog.repository.ArtigoRepository;
 import br.com.fiap.PosTech_SpringBlog.repository.AutorRepository;
@@ -11,6 +12,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.Aggregation;
+import org.springframework.data.mongodb.core.aggregation.AggregationResults;
+import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Service;
 
@@ -163,5 +167,20 @@ public class ArtigoServiceImpl implements ArtigoService {
                 TextCriteria.forDefaultLanguage().matchingPhrase(termoPesquisa);
         Query query = TextQuery.queryText(criteria).sortByScore();
         return mongoTemplate.find(query, Artigo.class);
+    }
+
+    @Override
+    public List<ArtigoStatusCount> contarArtigosPorStatus() {
+        TypedAggregation<Artigo> aggregation =
+                Aggregation.newAggregation(
+                        Artigo.class,
+                        Aggregation.group("status").count().as("quantidade"),
+                        Aggregation.project("quantidade").and("status")
+                                .previousOperation()
+                );
+
+        AggregationResults<ArtigoStatusCount> result = mongoTemplate.aggregate(aggregation, ArtigoStatusCount.class);
+
+        return result.getMappedResults();
     }
 }

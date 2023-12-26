@@ -1,6 +1,7 @@
 package br.com.fiap.PosTech_SpringBlog.service;
 
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
+import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,4 +25,5 @@ public interface ArtigoService {
     public List<Artigo> findByStatusOrderByTituloAsc(Integer status);
     public List<Artigo> obterArtigoPorStatusComOrdenacao(Integer status);
     public List<Artigo> findByTexto(String termoPesquisa);
+    public List<ArtigoStatusCount> contarArtigosPorStatus();
 }
