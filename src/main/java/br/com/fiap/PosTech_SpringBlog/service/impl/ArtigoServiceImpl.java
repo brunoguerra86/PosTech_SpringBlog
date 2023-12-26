@@ -11,9 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -157,5 +155,13 @@ public class ArtigoServiceImpl implements ArtigoService {
     @Override
     public List<Artigo> obterArtigoPorStatusComOrdenacao(Integer status) {
         return this.artigoRepository.obterArtigoPorStatusComOrdenacao(status);
+    }
+
+    @Override
+    public List<Artigo> findByTexto(String termoPesquisa) {
+        TextCriteria criteria =
+                TextCriteria.forDefaultLanguage().matchingPhrase(termoPesquisa);
+        Query query = TextQuery.queryText(criteria).sortByScore();
+        return mongoTemplate.find(query, Artigo.class);
     }
 }

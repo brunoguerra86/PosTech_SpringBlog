@@ -81,6 +81,11 @@ public class ArtigoController {
         return this.artigoService.obterArtigoPorStatusComOrdenacao(status);
     }
 
+    @GetMapping("/buscatermo")
+    public List<Artigo> findByTexto(@RequestParam("termo") String termo){
+        return this.artigoService.findByTexto(termo);
+    }
+
     @PutMapping
     public void atualizar(@RequestBody Artigo artigo){
         this.artigoService.atualizar(artigo);
