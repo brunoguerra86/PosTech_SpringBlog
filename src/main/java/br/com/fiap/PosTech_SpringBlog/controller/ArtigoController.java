@@ -2,6 +2,7 @@ package br.com.fiap.PosTech_SpringBlog.controller;
 
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
 import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
+import br.com.fiap.PosTech_SpringBlog.model.AutorTotalArtigo;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -90,6 +92,13 @@ public class ArtigoController {
     @GetMapping("/contarartigos")
     public List<ArtigoStatusCount> contarArtigosPorStatus(){
         return this.artigoService.contarArtigosPorStatus();
+    }
+
+    @GetMapping("/contarartigosporautor")
+    public List<AutorTotalArtigo> calcularTotalArtigosPorAutorNoPeriodo(
+            @RequestParam("dataInicio")LocalDate dataInicio,
+            @RequestParam("dataFim")LocalDate dataFim) {
+        return this.artigoService.calcularTotalArtigosPorAutorNoPeriodo(dataInicio, dataFim);
     }
 
     @PutMapping

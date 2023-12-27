@@ -3,6 +3,7 @@ package br.com.fiap.PosTech_SpringBlog.service.impl;
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
 import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
 import br.com.fiap.PosTech_SpringBlog.model.Autor;
+import br.com.fiap.PosTech_SpringBlog.model.AutorTotalArtigo;
 import br.com.fiap.PosTech_SpringBlog.repository.ArtigoRepository;
 import br.com.fiap.PosTech_SpringBlog.repository.AutorRepository;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
@@ -18,6 +19,7 @@ import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -182,5 +184,26 @@ public class ArtigoServiceImpl implements ArtigoService {
         AggregationResults<ArtigoStatusCount> result = mongoTemplate.aggregate(aggregation, ArtigoStatusCount.class);
 
         return result.getMappedResults();
+    }
+
+    @Override
+    public List<AutorTotalArtigo> calcularTotalArtigosPorAutorNoPeriodo(LocalDate dataInicio, LocalDate dataFim) {
+        TypedAggregation<Artigo> aggregation =
+                Aggregation.newAggregation(
+                        Artigo.class,
+                        Aggregation.match(
+                                Criteria.where("data")
+                                        .gte(dataInicio.atStartOfDay())
+                                        .lt(dataFim.plusDays(1).atStartOfDay())
+                        ),
+                        Aggregation.group("autor").count().as("totalArtigos"),
+                        Aggregation.project("totalArtigos").and("autor")
+                                .previousOperation()
+                );
+
+        AggregationResults<AutorTotalArtigo> results =
+                mongoTemplate.aggregate(aggregation, AutorTotalArtigo.class);
+
+        return results.getMappedResults();
     }
 }
