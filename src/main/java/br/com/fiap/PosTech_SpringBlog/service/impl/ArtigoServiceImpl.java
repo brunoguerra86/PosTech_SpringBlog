@@ -18,6 +18,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.*;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -43,6 +44,7 @@ public class ArtigoServiceImpl implements ArtigoService {
         return this.artigoRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Artigo obterPorCodigo(String codigo) {
         return this.artigoRepository
@@ -50,6 +52,7 @@ public class ArtigoServiceImpl implements ArtigoService {
                 .orElseThrow(() -> new IllegalArgumentException("Artigo não existe"));
     }
 
+    @Transactional
     @Override
     public Artigo criar(Artigo artigo) {
 
@@ -87,11 +90,13 @@ public class ArtigoServiceImpl implements ArtigoService {
         return mongoTemplate.find(query, Artigo.class);
     }
 
+    @Transactional
     @Override
     public void atualizar(Artigo updateArtigo) {
         this.artigoRepository.save(updateArtigo);
     }
 
+    @Transactional
     @Override
     public void atualizarArtigo(String id, String novaURL) {
         Query query = new Query(Criteria
@@ -100,11 +105,13 @@ public class ArtigoServiceImpl implements ArtigoService {
         this.mongoTemplate.updateFirst(query, update, Artigo.class);
     }
 
+    @Transactional
     @Override
     public void deleteById(String id){
         this.artigoRepository.deleteById(id);
     }
 
+    @Transactional
     @Override
     public void deleteArtigoById(String id) {
         Query query = new Query(Criteria
@@ -112,16 +119,19 @@ public class ArtigoServiceImpl implements ArtigoService {
         this.mongoTemplate.remove(query, Artigo.class);
     }
 
+    @Transactional
     @Override
     public List<Artigo> findByStatusAndDataGreaterThan(Integer status, LocalDateTime data) {
         return this.artigoRepository.findByStatusAndDataGreaterThan(status, data);
     }
 
+    @Transactional
     @Override
     public List<Artigo> obterArtigoPorDataHora(LocalDateTime de, LocalDateTime ate) {
         return this.artigoRepository.obterArtigoPorDataHora(de, ate);
     }
 
+    @Transactional
     @Override
     public List<Artigo> encontrarArtigosComplexos(Integer status, LocalDateTime data, String titulo) {
         Criteria criteria = new Criteria();
@@ -143,6 +153,7 @@ public class ArtigoServiceImpl implements ArtigoService {
         return mongoTemplate.find(query, Artigo.class);
     }
 
+    @Transactional
     @Override
     public Page<Artigo> obterArtigosPaginados(Pageable pageable) {
         Sort sort = Sort.by("titulo").ascending();
@@ -153,16 +164,19 @@ public class ArtigoServiceImpl implements ArtigoService {
         return this.artigoRepository.findAll(paginacao);
     }
 
+    @Transactional
     @Override
     public List<Artigo> findByStatusOrderByTituloAsc(Integer status) {
         return this.artigoRepository.findByStatusOrderByTituloAsc(status);
     }
 
+    @Transactional
     @Override
     public List<Artigo> obterArtigoPorStatusComOrdenacao(Integer status) {
         return this.artigoRepository.obterArtigoPorStatusComOrdenacao(status);
     }
 
+    @Transactional
     @Override
     public List<Artigo> findByTexto(String termoPesquisa) {
         TextCriteria criteria =
@@ -171,6 +185,7 @@ public class ArtigoServiceImpl implements ArtigoService {
         return mongoTemplate.find(query, Artigo.class);
     }
 
+    @Transactional
     @Override
     public List<ArtigoStatusCount> contarArtigosPorStatus() {
         TypedAggregation<Artigo> aggregation =
@@ -186,6 +201,7 @@ public class ArtigoServiceImpl implements ArtigoService {
         return result.getMappedResults();
     }
 
+    @Transactional
     @Override
     public List<AutorTotalArtigo> calcularTotalArtigosPorAutorNoPeriodo(LocalDate dataInicio, LocalDate dataFim) {
         TypedAggregation<Artigo> aggregation =
