@@ -8,6 +8,7 @@ import br.com.fiap.PosTech_SpringBlog.repository.ArtigoRepository;
 import br.com.fiap.PosTech_SpringBlog.repository.AutorRepository;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -72,8 +73,30 @@ public class ArtigoServiceImpl implements ArtigoService {
             artigo.setAutor(null);
         }
 
-        //Salvo o artigo com o autor já cadastrado
-        return this.artigoRepository.save(artigo);
+        try{
+            //Salvo o artigo com o autor já cadastrado
+            return this.artigoRepository.save(artigo);
+        } catch (OptimisticLockingFailureException ex){
+
+            //1. Recuperar o documento mais recente do banco de dados (na coleção Artigo)
+            Artigo artigoAtualizado =
+                    artigoRepository.findById(artigo.getCodigo()).orElse(null);
+
+            if(artigoAtualizado != null){
+                //2. Atualizar os campos desejados
+                artigoAtualizado.setTitulo(artigo.getTitulo());
+                artigoAtualizado.setTexto(artigo.getTexto());
+                artigoAtualizado.setStatus(artigo.getStatus());
+
+                //3. Incrementar a versão manualmente do documento
+                artigoAtualizado.setVersion(artigoAtualizado.getVersion() + 1);
+
+                //4. Tentar salvar novamente
+                return this.artigoRepository.save(artigo);
+            } else {
+                throw new RuntimeException("Artigo não encontrado: " + artigo.getCodigo());
+            }
+        }
     }
 
     @Override
@@ -99,9 +122,14 @@ public class ArtigoServiceImpl implements ArtigoService {
     @Transactional
     @Override
     public void atualizarArtigo(String id, String novaURL) {
+        //Critério de busca pelo "_id"
         Query query = new Query(Criteria
                 .where("_id").is(id));
+
+        //Definindo os campos que serão atualizados
         Update update = new Update().set("url", novaURL);
+
+        //Executa a atualização
         this.mongoTemplate.updateFirst(query, update, Artigo.class);
     }
 
