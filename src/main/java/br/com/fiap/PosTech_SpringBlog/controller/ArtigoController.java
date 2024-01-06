@@ -4,6 +4,7 @@ import br.com.fiap.PosTech_SpringBlog.model.Artigo;
 import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
 import br.com.fiap.PosTech_SpringBlog.model.AutorTotalArtigo;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
@@ -51,7 +52,7 @@ public class ArtigoController {
 
     @PutMapping("/{id}/atualizarArtigo")
     public ResponseEntity<?> atualizarArtigo(@PathVariable("id") String id,
-                                             @RequestBody Artigo artigo) {
+                                             @Valid @RequestBody Artigo artigo) {
         return this.artigoService.atualizarArtigo(id, artigo);
     }
 
