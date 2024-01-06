@@ -166,6 +166,31 @@ public class ArtigoServiceImpl implements ArtigoService {
         this.mongoTemplate.updateFirst(query, update, Artigo.class);
     }
 
+    @Override
+    public ResponseEntity<?> atualizarArtigo(String id, Artigo artigo) {
+        try{
+            Artigo artigoExistente = this.artigoRepository.findById(id).orElse(null);
+
+            if (artigoExistente == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Artigo não encontrado na coleção!");
+            }
+
+            //Atualizar dados do Artigo Existente
+            artigoExistente.setTitulo(artigo.getTitulo());
+            artigoExistente.setData(artigo.getData());
+            artigoExistente.setTexto(artigo.getTexto());
+            artigoExistente.setUrl(artigo.getUrl());
+            artigoExistente.setStatus(artigo.getStatus());
+            this.artigoRepository.save(artigoExistente);
+            return ResponseEntity.status(HttpStatus.OK).build();
+
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao atualizar artigo: " + e.getMessage());
+        }
+    }
+
     @Transactional
     @Override
     public void deleteById(String id){

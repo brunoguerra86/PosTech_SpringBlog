@@ -20,6 +20,7 @@ public interface ArtigoService {
     public List<Artigo> findByDataAndStatus(LocalDateTime data, Integer status);
     public void atualizar(Artigo updateArtigo);
     public void atualizarArtigo(String id, String novaURL);
+    public ResponseEntity<?> atualizarArtigo(String id, Artigo artigo);
     public void deleteById(String id);
     public void deleteArtigoById(String id);
     public List<Artigo> findByStatusAndDataGreaterThan(Integer status, LocalDateTime data);
