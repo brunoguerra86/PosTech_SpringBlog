@@ -29,8 +29,13 @@ public class ArtigoController {
                 .body("Erro de concorrência: o Artigo foi atualizado por outro usuário. Por favor, tente novamente.");
     }
 
+//    @PostMapping
+//    public Artigo criar(@RequestBody Artigo artigo ){
+//        return this.artigoService.criar(artigo);
+//    }
+
     @PostMapping
-    public Artigo criar(@RequestBody Artigo artigo ){
+    public ResponseEntity<?> criar(@RequestBody Artigo artigo){
         return this.artigoService.criar(artigo);
     }
 

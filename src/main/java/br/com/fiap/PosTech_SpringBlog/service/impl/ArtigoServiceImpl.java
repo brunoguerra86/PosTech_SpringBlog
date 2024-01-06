@@ -8,6 +8,7 @@ import br.com.fiap.PosTech_SpringBlog.repository.ArtigoRepository;
 import br.com.fiap.PosTech_SpringBlog.repository.AutorRepository;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +19,8 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,49 +56,79 @@ public class ArtigoServiceImpl implements ArtigoService {
                 .orElseThrow(() -> new IllegalArgumentException("Artigo não existe"));
     }
 
-    @Transactional
+//    @Transactional
+//    @Override
+//    public Artigo criar(Artigo artigo) {
+//
+//        //Se o autor existe
+//        if(artigo.getAutor().getCodigo() != null){
+//
+//            //recuperar o autor
+//            Autor autor = this.autorRepository
+//                    .findById(artigo.getAutor().getCodigo())
+//                    .orElseThrow(()-> new IllegalArgumentException("Autor inexistente!"));
+//
+//            //define o autor no artigo
+//            artigo.setAutor(autor);
+//        } else {
+//
+//            //Caso contrário, gravar o artigo sem autor
+//            artigo.setAutor(null);
+//        }
+//
+//        try{
+//            //Salvo o artigo com o autor já cadastrado
+//            return this.artigoRepository.save(artigo);
+//        } catch (OptimisticLockingFailureException ex){
+//
+//            //1. Recuperar o documento mais recente do banco de dados (na coleção Artigo)
+//            Artigo artigoAtualizado =
+//                    artigoRepository.findById(artigo.getCodigo()).orElse(null);
+//
+//            if(artigoAtualizado != null){
+//                //2. Atualizar os campos desejados
+//                artigoAtualizado.setTitulo(artigo.getTitulo());
+//                artigoAtualizado.setTexto(artigo.getTexto());
+//                artigoAtualizado.setStatus(artigo.getStatus());
+//
+//                //3. Incrementar a versão manualmente do documento
+//                artigoAtualizado.setVersion(artigoAtualizado.getVersion() + 1);
+//
+//                //4. Tentar salvar novamente
+//                return this.artigoRepository.save(artigo);
+//            } else {
+//                throw new RuntimeException("Artigo não encontrado: " + artigo.getCodigo());
+//            }
+//        }
+//    }
+
+
     @Override
-    public Artigo criar(Artigo artigo) {
+    public ResponseEntity<?> criar(Artigo artigo) {
 
-        //Se o autor existe
-        if(artigo.getAutor().getCodigo() != null){
-
+        if (artigo.getAutor().getCodigo() != null) {
             //recuperar o autor
             Autor autor = this.autorRepository
                     .findById(artigo.getAutor().getCodigo())
-                    .orElseThrow(()-> new IllegalArgumentException("Autor inexistente!"));
+                    .orElseThrow(() -> new IllegalArgumentException("Autor inexistente!"));
 
             //define o autor no artigo
             artigo.setAutor(autor);
         } else {
-
             //Caso contrário, gravar o artigo sem autor
             artigo.setAutor(null);
         }
 
         try{
             //Salvo o artigo com o autor já cadastrado
-            return this.artigoRepository.save(artigo);
-        } catch (OptimisticLockingFailureException ex){
-
-            //1. Recuperar o documento mais recente do banco de dados (na coleção Artigo)
-            Artigo artigoAtualizado =
-                    artigoRepository.findById(artigo.getCodigo()).orElse(null);
-
-            if(artigoAtualizado != null){
-                //2. Atualizar os campos desejados
-                artigoAtualizado.setTitulo(artigo.getTitulo());
-                artigoAtualizado.setTexto(artigo.getTexto());
-                artigoAtualizado.setStatus(artigo.getStatus());
-
-                //3. Incrementar a versão manualmente do documento
-                artigoAtualizado.setVersion(artigoAtualizado.getVersion() + 1);
-
-                //4. Tentar salvar novamente
-                return this.artigoRepository.save(artigo);
-            } else {
-                throw new RuntimeException("Artigo não encontrado: " + artigo.getCodigo());
-            }
+            this.artigoRepository.save(artigo);
+            return ResponseEntity.status(HttpStatus.CREATED).build();
+        } catch (DuplicateKeyException e){
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Artigo já existe na coleção.");
+        } catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao criar artigo: " + e.getMessage());
         }
     }
 
