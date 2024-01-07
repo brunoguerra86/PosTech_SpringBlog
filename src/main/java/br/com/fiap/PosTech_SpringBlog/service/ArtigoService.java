@@ -2,6 +2,7 @@ package br.com.fiap.PosTech_SpringBlog.service;
 
 import br.com.fiap.PosTech_SpringBlog.model.Artigo;
 import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
+import br.com.fiap.PosTech_SpringBlog.model.Autor;
 import br.com.fiap.PosTech_SpringBlog.model.AutorTotalArtigo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,8 @@ public interface ArtigoService {
     public List<Artigo> obterTodos();
     public Artigo obterPorCodigo(String codigo);
 //    public Artigo criar(Artigo artigo);
-    public ResponseEntity<?> criar(Artigo artigo);
+//    public ResponseEntity<?> criar(Artigo artigo);
+    public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor);
     public List<Artigo> findByDataGreaterThan(LocalDateTime data);
     public List<Artigo> findByDataAndStatus(LocalDateTime data, Integer status);
     public void atualizar(Artigo updateArtigo);

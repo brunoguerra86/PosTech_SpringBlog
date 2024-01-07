@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.MongoTransactionManager;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
@@ -23,6 +24,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,6 +38,9 @@ public class ArtigoServiceImpl implements ArtigoService {
     public ArtigoServiceImpl(MongoTemplate mongoTemplate){
         this.mongoTemplate = mongoTemplate;
     }
+
+    @Autowired
+    private MongoTransactionManager mongoTransactionManager;
 
     @Autowired
     private ArtigoRepository artigoRepository;
@@ -103,33 +108,55 @@ public class ArtigoServiceImpl implements ArtigoService {
 //    }
 
 
+//    @Override
+//    public ResponseEntity<?> criar(Artigo artigo) {
+//
+//        if (artigo.getAutor().getCodigo() != null) {
+//            //recuperar o autor
+//            Autor autor = this.autorRepository
+//                    .findById(artigo.getAutor().getCodigo())
+//                    .orElseThrow(() -> new IllegalArgumentException("Autor inexistente!"));
+//
+//            //define o autor no artigo
+//            artigo.setAutor(autor);
+//        } else {
+//            //Caso contrário, gravar o artigo sem autor
+//            artigo.setAutor(null);
+//        }
+//
+//        try{
+//            //Salvo o artigo com o autor já cadastrado
+//            this.artigoRepository.save(artigo);
+//            return ResponseEntity.status(HttpStatus.CREATED).build();
+//        } catch (DuplicateKeyException e){
+//            return ResponseEntity.status(HttpStatus.CONFLICT)
+//                    .body("Artigo já existe na coleção.");
+//        } catch (Exception e){
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+//                    .body("Erro ao criar artigo: " + e.getMessage());
+//        }
+//    }
+
     @Override
-    public ResponseEntity<?> criar(Artigo artigo) {
+    public ResponseEntity<?> criarArtigoComAutor(Artigo artigo, Autor autor) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(mongoTransactionManager);
+        transactionTemplate.execute(status -> {
+            try{
 
-        if (artigo.getAutor().getCodigo() != null) {
-            //recuperar o autor
-            Autor autor = this.autorRepository
-                    .findById(artigo.getAutor().getCodigo())
-                    .orElseThrow(() -> new IllegalArgumentException("Autor inexistente!"));
+                //Iniciar a transação
+                autorRepository.save(autor);
+                artigo.setData(LocalDateTime.now());
+                artigo.setAutor(autor);
+                artigoRepository.save(artigo);
+            } catch (Exception e){
 
-            //define o autor no artigo
-            artigo.setAutor(autor);
-        } else {
-            //Caso contrário, gravar o artigo sem autor
-            artigo.setAutor(null);
-        }
-
-        try{
-            //Salvo o artigo com o autor já cadastrado
-            this.artigoRepository.save(artigo);
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } catch (DuplicateKeyException e){
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body("Artigo já existe na coleção.");
-        } catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erro ao criar artigo: " + e.getMessage());
-        }
+                //Trata o erro e lançar a transação de volta em caso de exceção
+                status.setRollbackOnly();
+                throw new RuntimeException("Erro ao criar artigo com autor: " + e.getMessage());
+            }
+            return null;
+        });
+        return null;
     }
 
     @Override

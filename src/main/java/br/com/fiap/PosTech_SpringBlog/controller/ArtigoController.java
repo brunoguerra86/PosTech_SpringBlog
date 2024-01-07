@@ -1,8 +1,6 @@
 package br.com.fiap.PosTech_SpringBlog.controller;
 
-import br.com.fiap.PosTech_SpringBlog.model.Artigo;
-import br.com.fiap.PosTech_SpringBlog.model.ArtigoStatusCount;
-import br.com.fiap.PosTech_SpringBlog.model.AutorTotalArtigo;
+import br.com.fiap.PosTech_SpringBlog.model.*;
 import br.com.fiap.PosTech_SpringBlog.service.ArtigoService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,9 +33,16 @@ public class ArtigoController {
 //        return this.artigoService.criar(artigo);
 //    }
 
+//    @PostMapping
+//    public ResponseEntity<?> criar(@RequestBody Artigo artigo){
+//        return this.artigoService.criar(artigo);
+//    }
+
     @PostMapping
-    public ResponseEntity<?> criar(@RequestBody Artigo artigo){
-        return this.artigoService.criar(artigo);
+    public ResponseEntity<?> criarArtigoComAutor(@RequestBody ArtigoComAutorRequest request){
+        Artigo artigo = request.getArtigo();
+        Autor autor = request.getAutor();
+        return this.artigoService.criarArtigoComAutor(artigo, autor);
     }
 
     @PutMapping
